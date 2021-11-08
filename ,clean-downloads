@@ -1,0 +1,41 @@
+#!/usr/bin/env zx
+const fs = require('fs');
+
+$.verbose = false
+
+const data_directory = '/Users/cdempsey/data'
+const download_directory = '/Users/cdempsey/Downloads'
+const file_types = [
+    { name: 'dmg', destination: `${data_directory}/dmgs` },
+    { name: 'epub', destination: `${data_directory}/books` },
+    { name: 'jpeg', destination: `${data_directory}/images` },
+    { name: 'jpg', destination: `${data_directory}/images` },
+    { name: 'md', destination: `${data_directory}/docs` },
+    { name: 'pdf', destination: `${data_directory}/books` },
+    { name: 'png', destination: `${data_directory}/images` },
+    { name: 'rar', destination: `${data_directory}/archives` },
+    { name: 'webp', destination: `${data_directory}/images` },
+    { name: 'zip', destination: `${data_directory}/archives` },
+    { name: '7z', destination: `${data_directory}/archives` },
+]
+
+async function has_files(file_type) {
+    try {
+        return fs.readdirSync(`${download_directory}`).filter(file => file.endsWith(file_type.name)).length
+    } catch (error) {
+        return false
+    }
+}
+
+async function main() {
+    for (const file_type of file_types) {
+        if (await has_files(file_type)) {
+            await $`mkdir -p ${file_type.destination}`
+            await $`mv ${download_directory}/*.${file_type.name} ${file_type.destination}`
+        } else {
+            console.log(`No ${file_type.name.toUpperCase()} files to move`)
+        }
+    }
+}
+
+await main()
